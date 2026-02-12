@@ -10,6 +10,7 @@ from sklearn.metrics import (
     roc_auc_score, roc_curve, matthews_corrcoef
 )
 import warnings
+import os
 warnings.filterwarnings('ignore')
 
 # Page configuration
@@ -32,7 +33,7 @@ with col1:
 
 with col2:
     try:
-        st.image("BITS_WILP.png", width=200)
+        st.image("Data/BITS_WILP.png", width=200)
     except:
         st.warning("Logo image not found")
 
@@ -63,6 +64,41 @@ selected_model_name = st.sidebar.selectbox(
 
 # File upload
 st.sidebar.header("Data Upload")
+
+# Download option for test data
+st.sidebar.markdown("### 📥 Download Test Data")
+
+# Try to provide download button using local file first, then GitHub
+test_data_path = "Data/test_data_for_streamlit.csv"
+if os.path.exists(test_data_path):
+    with open(test_data_path, 'rb') as f:
+        st.sidebar.download_button(
+            label="⬇️ Download Test Data CSV",
+            data=f,
+            file_name="test_data_for_streamlit.csv",
+            mime="text/csv",
+            help="Download the test dataset to upload and get predictions"
+        )
+else:
+    try:
+        import requests
+        raw_url = "https://raw.githubusercontent.com/2025AA05375-WILP-BITS/ML_Assignment_2_Project_Breast_Cancer/main/Data/test_data_for_streamlit.csv"
+        response = requests.get(raw_url, timeout=5)
+        if response.status_code == 200:
+            st.sidebar.download_button(
+                label="⬇️ Download Test Data CSV",
+                data=response.content,
+                file_name="test_data_for_streamlit.csv",
+                mime="text/csv",
+                help="Download the test dataset to upload and get predictions"
+            )
+        else:
+            st.sidebar.info("Download unavailable. Please use the GitHub link above.")
+    except:
+        st.sidebar.info("Download unavailable. Please use the GitHub link above.")
+
+st.sidebar.markdown("---")
+
 uploaded_file = st.sidebar.file_uploader(
     "Upload Test Data (CSV)",
     type=['csv'],
@@ -74,8 +110,8 @@ uploaded_file = st.sidebar.file_uploader(
 def load_model(model_name):
     """Load the selected model and scaler"""
     try:
-        model_path = f"saved_models/{model_options[model_name]}"
-        scaler_path = "saved_models/scaler.pkl"
+        model_path = f"model/{model_options[model_name]}"
+        scaler_path = "model/scaler.pkl"
         
         with open(model_path, 'rb') as f:
             model = pickle.load(f)
@@ -92,7 +128,7 @@ def load_model(model_name):
 model, scaler = load_model(selected_model_name)
 
 if model is None:
-    st.error("Failed to load the model. Please check if the model files exist in the 'saved_models' directory.")
+    st.error("Failed to load the model. Please check if the model files exist in the 'model' directory.")
     st.stop()
 
 st.sidebar.success(f"✅ {selected_model_name} loaded successfully!")
