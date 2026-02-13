@@ -70,13 +70,6 @@ st.sidebar.header("Data Upload")
 
 # Download option for test data
 st.sidebar.markdown("### 📥 Download Test Data")
-st.sidebar.markdown("""
-**Test Dataset Details:**
-- 114 samples (20% of total dataset)
-- 30 features + diagnosis column
-- Stratified split (maintains class distribution)
-- Same data used in notebook evaluation
-""")
 
 # Try to provide download button using local file first, then GitHub
 test_data_path = "Data/test_data_for_streamlit.csv"
@@ -227,8 +220,16 @@ if uploaded_file is not None:
             f1 = f1_score(y_test_encoded, y_pred, zero_division=0)
             mcc = matthews_corrcoef(y_test_encoded, y_pred)
             
-            # Display metrics in columns
-            col1, col2, col3, col4, col5 = st.columns(5)
+            # Calculate ROC-AUC Score (if probability predictions available)
+            auc_score = None
+            if y_pred_proba is not None:
+                try:
+                    auc_score = roc_auc_score(y_test_encoded, y_pred_proba)
+                except:
+                    pass
+            
+            # Display all metrics in one row
+            col1, col2, col3, col4, col5, col6 = st.columns(6)
             
             with col1:
                 st.metric("Accuracy", f"{accuracy:.4f}")
@@ -240,14 +241,11 @@ if uploaded_file is not None:
                 st.metric("F1-Score", f"{f1:.4f}")
             with col5:
                 st.metric("MCC Score", f"{mcc:.4f}")
-            
-            # ROC-AUC Score (if probability predictions available)
-            if y_pred_proba is not None:
-                try:
-                    auc_score = roc_auc_score(y_test_encoded, y_pred_proba)
+            with col6:
+                if auc_score is not None:
                     st.metric("ROC-AUC Score", f"{auc_score:.4f}")
-                except:
-                    pass
+                else:
+                    st.metric("ROC-AUC Score", "N/A")
             
             # Confusion Matrix and Classification Report
             st.header("📊 Detailed Analysis")
@@ -350,51 +348,23 @@ else:
     - **Required:** All 30 feature columns (listed below)
     - **Optional:** An `id` column (will be automatically ignored)
     
-    ### Required Features (30 total):
     
-    **Mean Measurements (10 features):**
-    - radius_mean, texture_mean, perimeter_mean, area_mean, smoothness_mean
-    - compactness_mean, concavity_mean, concave points_mean, symmetry_mean, fractal_dimension_mean
-    
-    **Standard Error Measurements (10 features):**
-    - radius_se, texture_se, perimeter_se, area_se, smoothness_se
-    - compactness_se, concavity_se, concave points_se, symmetry_se, fractal_dimension_se
-    
-    **Worst/Largest Measurements (10 features):**
-    - radius_worst, texture_worst, perimeter_worst, area_worst, smoothness_worst
-    - compactness_worst, concavity_worst, concave points_worst, symmetry_worst, fractal_dimension_worst
-    
-    ### Note:
-    - Download the provided test data file to ensure correct format and see expected results
-    - The test data contains 114 samples with ground truth labels for evaluation
-    - Models are trained on 80% of the dataset and tested on 20% (stratified split)
     """)
     
     st.header("🤖 Available Models")
     st.markdown("""
     This app includes 6 different machine learning models trained on the Breast Cancer Wisconsin dataset:
     
-    | Model | Type | Description |
-    |-------|------|-------------|
-    | **Logistic Regression** | Linear | Probabilistic linear classifier with L2 regularization |
-    | **K-Nearest Neighbors** | Instance-based | Classifies based on k=5 nearest neighbors |
-    | **Naive Bayes** | Probabilistic | Gaussian Naive Bayes classifier |
-    | **Decision Tree** | Tree-based | Non-linear tree-based classifier |
-    | **Random Forest** | Ensemble | Ensemble of 100 decision trees |
-    | **XGBoost** | Gradient Boosting | Advanced gradient boosting classifier |
+    | Model | 
+    |-------|
+    | **Logistic Regression** | 
+    | **K-Nearest Neighbors** | 
+    | **Naive Bayes** | 
+    | **Decision Tree** | 
+    | **Random Forest** | 
+    | **XGBoost** | |
     
     **Note:** 
-    - Distance-based models (Logistic Regression, KNN, Naive Bayes) use scaled features
-    - Tree-based models (Decision Tree, Random Forest, XGBoost) use unscaled features
     - All models were trained with random_state=42 for reproducibility
     """)
 
-# Footer
-st.markdown("---")
-st.markdown("""
-<div style='text-align: center; color: #666; padding: 10px;'>
-    <p><strong>Breast Cancer Classification App</strong> | Machine Learning Assignment 2</p>
-    <p>Built with Streamlit | BITS Pilani WILP 2025 | Student: VISWANATHA REDDY M (2025AA05375)</p>
-    <p style='font-size: 12px;'>Dataset: Wisconsin Breast Cancer (Diagnostic) | 569 instances, 30 features, 2 classes</p>
-</div>
-""", unsafe_allow_html=True)
