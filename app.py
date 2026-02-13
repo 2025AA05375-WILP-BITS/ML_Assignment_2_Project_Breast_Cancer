@@ -41,7 +41,10 @@ with col2:
 st.title("🏥 Breast Cancer Classification App")
 st.markdown("""
 This application predicts whether a breast cancer tumor is **Malignant** or **Benign** 
-based on various diagnostic features using Machine Learning models.
+based on 30 diagnostic features from the Wisconsin Breast Cancer dataset using Machine Learning models.
+
+**Dataset:** Breast Cancer Wisconsin (Diagnostic)  
+**Total Instances:** 569 | **Features:** 30 | **Classes:** 2 (Benign, Malignant)
 """)
 
 # Sidebar for model selection and file upload
@@ -217,8 +220,16 @@ if uploaded_file is not None:
             f1 = f1_score(y_test_encoded, y_pred, zero_division=0)
             mcc = matthews_corrcoef(y_test_encoded, y_pred)
             
-            # Display metrics in columns
-            col1, col2, col3, col4, col5 = st.columns(5)
+            # Calculate ROC-AUC Score (if probability predictions available)
+            auc_score = None
+            if y_pred_proba is not None:
+                try:
+                    auc_score = roc_auc_score(y_test_encoded, y_pred_proba)
+                except:
+                    pass
+            
+            # Display all metrics in one row
+            col1, col2, col3, col4, col5, col6 = st.columns(6)
             
             with col1:
                 st.metric("Accuracy", f"{accuracy:.4f}")
@@ -230,14 +241,11 @@ if uploaded_file is not None:
                 st.metric("F1-Score", f"{f1:.4f}")
             with col5:
                 st.metric("MCC Score", f"{mcc:.4f}")
-            
-            # ROC-AUC Score (if probability predictions available)
-            if y_pred_proba is not None:
-                try:
-                    auc_score = roc_auc_score(y_test_encoded, y_pred_proba)
+            with col6:
+                if auc_score is not None:
                     st.metric("ROC-AUC Score", f"{auc_score:.4f}")
-                except:
-                    pass
+                else:
+                    st.metric("ROC-AUC Score", "N/A")
             
             # Confusion Matrix and Classification Report
             st.header("📊 Detailed Analysis")
@@ -316,49 +324,47 @@ if uploaded_file is not None:
 
 else:
     # Show instructions when no file is uploaded
-    st.info("👈 Please upload a CSV file containing test data to begin prediction and evaluation.")
+    st.info("👈 **Please upload a CSV file from the sidebar to begin prediction and evaluation.**")
+    st.markdown("""
+    💡 **Quick Start:** Download the test data file from the sidebar and upload it to see the app in action!
+    """)
     
     st.header("📋 Instructions")
     st.markdown("""
-    1. **Select a Model** from the dropdown in the sidebar
-    2. **Upload Test Data** (CSV file) using the file uploader
-    3. The app will automatically:
-       - Display the uploaded data
+    ### How to Use This App:
+    1. **Download Test Data** using the button in the sidebar (optional but recommended)
+    2. **Select a Model** from the dropdown in the sidebar
+    3. **Upload Test Data** (CSV file) using the file uploader
+    4. The app will automatically:
+       - Display the uploaded data preview
        - Make predictions using the selected model
-       - Show evaluation metrics (Accuracy, Precision, Recall, F1-Score)
+       - Show comprehensive evaluation metrics (Accuracy, Precision, Recall, F1-Score, MCC, ROC-AUC)
        - Display confusion matrix and classification report
-       - Allow you to download predictions
+       - Provide downloadable predictions
     
     ### Expected CSV Format:
-    The CSV file should contain:
-    - A `diagnosis` column with values 'M' (Malignant) or 'B' (Benign)
-    - 30 feature columns matching the training data
-    - Optionally, an `id` column (will be ignored during prediction)
+    The CSV file must contain:
+    - **Required:** A `diagnosis` column with values 'M' (Malignant) or 'B' (Benign)
+    - **Required:** All 30 feature columns (listed below)
+    - **Optional:** An `id` column (will be automatically ignored)
     
-    ### Required Features (30 total):
-    **Mean features:**
-    - radius_mean, texture_mean, perimeter_mean, area_mean, smoothness_mean
-    - compactness_mean, concavity_mean, concave points_mean, symmetry_mean, fractal_dimension_mean
     
-    **SE (Standard Error) features:**
-    - radius_se, texture_se, perimeter_se, area_se, smoothness_se
-    - compactness_se, concavity_se, concave points_se, symmetry_se, fractal_dimension_se
-    
-    **Worst features:**
-    - radius_worst, texture_worst, perimeter_worst, area_worst, smoothness_worst
-    - compactness_worst, concavity_worst, concave points_worst, symmetry_worst, fractal_dimension_worst
     """)
     
     st.header("🤖 Available Models")
     st.markdown("""
-    - **Logistic Regression**: Linear classification model
-    - **K-Nearest Neighbors**: Instance-based learning
-    - **Naive Bayes**: Probabilistic classifier
-    - **Decision Tree**: Tree-based classifier
-    - **Random Forest**: Ensemble of decision trees
-    - **XGBoost**: Gradient boosting classifier
+    This app includes 6 different machine learning models trained on the Breast Cancer Wisconsin dataset:
+    
+    | Model | 
+    |-------|
+    | **Logistic Regression** | 
+    | **K-Nearest Neighbors** | 
+    | **Naive Bayes** | 
+    | **Decision Tree** | 
+    | **Random Forest** | 
+    | **XGBoost** | |
+    
+    **Note:** 
+    - All models were trained with random_state=42 for reproducibility
     """)
 
-# Footer
-st.markdown("---")
-st.markdown("**Breast Cancer Classification App** | Built with Streamlit | Machine Learning Assignment")
