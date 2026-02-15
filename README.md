@@ -163,41 +163,4 @@ All models were trained using an 80/20 train-test split with stratify.
         ├── xgboost_model.pkl                # Trained XGBoost
         └── scaler.pkl                       # StandardScaler for feature scaling
 
-------------------------------------------------------------------------
-
-# How to Run
-
-## Prerequisites
-- Python 3.8 or higher
-- pip package manager
-
-## Installation & Execution
-
-``` bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the Streamlit app
-streamlit run app.py
-```
-
-## Using the Application
-
-1. The app will open in your default web browser 
-2. Download the test data using the sidebar button
-3. Select a model from the dropdown menu
-4. Upload the test data CSV file
-5. View predictions, metrics, and visualizations
-6. Download results as needed
-
-## Running the Jupyter Notebook
-
-``` bash
-# Navigate to the model directory
-cd model
-
-# Launch Jupyter Notebook
-jupyter notebook 2025AA05375_VISWANATHA_REDDY_M_ML_Assignment_2.ipynb
-```
-
-------------------------------------------------------------------------
+-----------------------------------------------------------------------
